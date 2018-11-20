@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "476272969658",
+    "firebase_url": "https://favor-fbc93.firebaseio.com",
+    "project_id": "favor-fbc93",
+    "storage_bucket": "favor-fbc93.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:476272969658:android:c9bb0f5159be8fdd",
+        "android_client_info": {
+          "package_name": "com.josephyaconelli.favor"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "476272969658-8ugns0t2fp368bfjnaovngevblgj45rk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.josephyaconelli.favor",
+            "certificate_hash": "a43da1ef0ed78dff3ed9bc9232fd4f5d0d43e9e6"
+          }
+        },
+        {
+          "client_id": "476272969658-op75803oooq7u50cd7unv7kn9v8k864q.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBSbWPvR1NBf4R9Teao0xbbd5HA0r4f6M8"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "476272969658-op75803oooq7u50cd7unv7kn9v8k864q.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
