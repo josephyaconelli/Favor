@@ -3,6 +3,8 @@ package com.josephyaconelli.favor.profileuser;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
+import com.josephyaconelli.favor.R;
+
 public class UserProfileActivity extends AppCompatActivity {
 
     @Override

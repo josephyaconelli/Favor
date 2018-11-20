@@ -16,7 +16,9 @@
             android:id="@+id/UserProfileImageView"
             android:layout_width="100dp"
             android:layout_height="100dp"
-            android:background="#aaaaaa"/>
+            android:src="@drawable/profile_placeholder_24dp"
+            android:scaleType="fitCenter"
+            />
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -31,12 +33,47 @@
                 android:layout_marginRight="25dp"
                 android:background="@drawable/border_edittext"
                 android:hint="Username"
-                android:textColorHint="#aaaaaa" />
+                android:textColorHint="#555555" />
 
 
 
 
         </LinearLayout>
+
+
+
+    </LinearLayout>
+
+    <EditText
+
+        android:layout_marginTop="40dp"
+        android:layout_height="200dp"
+        android:layout_width="match_parent"
+        android:layout_marginLeft="25dp"
+        android:layout_marginRight="25dp"
+        android:inputType="textLongMessage"
+        android:hint="About yourself..."
+        android:textColorHint="#555555" />
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="bottom">
+
+        <TextView
+            android:text="Save Profile"
+            android:id="@+id/saveProfileButton"
+            android:textSize="24sp"
+            android:textColor="#fafafa"
+            android:background="@drawable/background_login"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:layout_gravity="bottom"
+            android:layout_marginTop="25dp"
+            android:layout_marginRight="25dp"
+            android:layout_marginLeft="25dp"/>
 
     </LinearLayout>
 

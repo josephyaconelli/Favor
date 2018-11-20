@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.josephyaconelli.favor">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:name=".FireApp"
         android:allowBackup="true"
@@ -21,7 +23,11 @@
             </intent-filter>
         </activity>
         <activity android:name=".RegisterUserActivity" />
-        <activity android:name=".profileuser.UserProfileActivity"></activity>
+        <activity android:name=".profileuser.UserProfileActivity" />
+        <activity
+            android:name=".favorhome.FavorHome"
+            android:label="@string/title_activity_favor_home"
+            android:theme="@style/AppTheme"></activity>
     </application>
 
 </manifest>
