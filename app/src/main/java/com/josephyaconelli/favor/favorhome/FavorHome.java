@@ -81,20 +81,37 @@ public class FavorHome extends AppCompatActivity {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
 
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-                String userId = user.getUid();
-
+                FirebaseUser user = mAuth.getCurrentUser();
 
                 if(user != null)
                 {
-                    // TODO: this is kind of hacky
-                    if(TextUtils.isEmpty(user.getDisplayName())) {
+                    final String userId = user.getUid();
+                    mDatabaseRef.addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
 
-                        finish();
-                        Intent moveToSetupProfile = new Intent(FavorHome.this, UserProfileActivity.class);
-                        moveToSetupProfile.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        startActivity(moveToSetupProfile);
-                    }
+                            if(dataSnapshot.hasChild(userId))
+                            {
+
+                            }
+                            else
+                            {
+
+                                finish();
+                                Intent moveToSetupProfile = new Intent(FavorHome.this, UserProfileActivity.class);
+                                moveToSetupProfile.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                startActivity(moveToSetupProfile);
+
+                            }
+
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+
 
 
 

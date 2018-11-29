@@ -11,44 +11,95 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="15dp"
-        android:layout_marginTop="15dp"
+        android:clipToPadding="false"
         android:orientation="vertical">
 
-        <ImageView
-            android:id="@+id/UserProfileImageView"
-            android:layout_width="match_parent"
-            android:layout_height="275dp"
-            android:src="@drawable/profile_placeholder_24dp"
-            android:scaleType="centerCrop"
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_marginBottom="15dp"
-            />
+            android:clipToPadding="false"
+            android:clipChildren="false"
+            >
+            <android.support.constraint.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:elevation="7dp"
+                android:clipToPadding="false"
+                android:clipChildren="false"
+                >
+                <ImageView
+                    android:id="@+id/UserProfileImageView"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    app:layout_constraintDimensionRatio="1:1"
+                    android:src="@drawable/profile_placeholder_24dp"
+                    android:scaleType="centerCrop"
+                    />
+            </android.support.constraint.ConstraintLayout>
+
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="25dp"
+                android:elevation="15dp"
+                android:clipToPadding="false"
+                android:background="@drawable/point_background">
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:gravity="center_vertical"
+                    android:layout_marginRight="-5dp">
+
+                    <ImageView
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/currency"/>
+
+                </LinearLayout>
+
+                <TextView
+                    android:text="100"
+                    android:id="@+id/UserProfilePoints"
+                    android:textStyle="bold"
+                    android:textColor="#fafafa"
+                    android:textSize="30sp"
+                    android:gravity="center_vertical"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+
+
+        </RelativeLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="center_vertical">
 
             <EditText
-                android:id="@+id/usernameUserProfileEditText"
+                android:id="@+id/displayNameUserProfileEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_marginLeft="25dp"
                 android:layout_marginRight="25dp"
                 android:background="@drawable/border_edittext"
-                android:hint="Name"
+                android:hint="Display Name"
                 android:textColorHint="#555555" />
 
 
 
 
         </LinearLayout>
-
-
-
     </LinearLayout>
 
     <EditText
-
+        android:id="@+id/UserProfileAboutEditText"
         android:padding="15dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

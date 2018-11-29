@@ -3,4 +3,8 @@
     <string name="action_settings">Settings</string>
     <string name="title_activity_favor_home">Favor</string>
     <string name="section_format">Hello World from section: %1$d</string>
+    <string name="take_photo">Take Photo</string>
+    <string name="from_library">Choose from Library</string>
+    <string name="cancel">Cancel</string>
+    <string name="add_profile_picture">Add Profile Picture</string>
 </resources>
