@@ -75,7 +75,7 @@ public class FavorHome extends AppCompatActivity {
         // set up database
         mDatabaseRef = FirebaseDatabase.getInstance().getReference().child("users");
 
-        // set up Firebase Authentication
+        // set up Firebase Authentications
         mAuth = FirebaseAuth.getInstance();
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
