@@ -1,4 +1,4 @@
-package com.josephyaconelli.favor.profileuser;
+package com.josephyaconelli.favor.postinfo;
 
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -22,17 +22,17 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.josephyaconelli.favor.Manifest;
 import com.josephyaconelli.favor.R;
 import com.josephyaconelli.favor.favorhome.FavorHome;
 import com.theartofdev.edmodo.cropper.CropImage;
@@ -43,8 +43,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class UserProfileActivity extends AppCompatActivity {
-
+public class UserPostSendActivity extends AppCompatActivity {
 
     // request codes
     private static final int REQUEST_CAMERA = 3;
@@ -52,11 +51,8 @@ public class UserProfileActivity extends AppCompatActivity {
     private static final int PERMISSION_REQUEST_CAMERA = 4;
     private static final int PERMISSION_REQUEST_EXTERNAL_WRITE = 5;
 
-
-    // layout elements
-    EditText displayNameEditText, aboutUserEditText;
-    TextView pointsView, saveProfileBtn;
-    ImageView profileImage;
+    // favor points
+    String mFavorPoints = "0";
 
     // profile image uri and File
     Uri mCurrentPhotoPath;
@@ -65,29 +61,104 @@ public class UserProfileActivity extends AppCompatActivity {
     // progress dialog
     ProgressDialog mProgress;
 
+
+    // layout elements
+    TextView favorPointsTextView, publishFavorBtn, addPhotoText;
+    EditText favorTitleEditText, favorDescriptionEditText;
+    ImageView favorImage;
+
+
     // firebase auth
     FirebaseAuth mAuth;
     FirebaseAuth.AuthStateListener mAuthListener;
 
     // firebase database
-    DatabaseReference mUserDatabase;
+    DatabaseReference mUserDatabase, mFavorsDatabase;
     StorageReference mStorageRef;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_user_profile);
+        setContentView(R.layout.activity_user_post_send);
 
-        // get references for layout elements
-        displayNameEditText = (EditText) findViewById(R.id.displayNameUserProfileEditText);
-        aboutUserEditText = (EditText) findViewById(R.id.UserProfileAboutEditText);
-        pointsView = (TextView) findViewById(R.id.UserProfilePoints);
-        saveProfileBtn = (TextView) findViewById(R.id.saveProfileButton);
-        profileImage = (ImageView) findViewById(R.id.UserProfileImageView);
+
+        // get references
+        favorDescriptionEditText = (EditText) findViewById(R.id.aboutFavorEditText);
+        favorPointsTextView = (TextView) findViewById(R.id.favorPointsView);
+        favorTitleEditText = (EditText) findViewById(R.id.favorTitleEditText);
+        favorDescriptionEditText = (EditText) findViewById(R.id.aboutFavorEditText);
+        publishFavorBtn = (TextView) findViewById(R.id.publishFavor);
+        favorImage = (ImageView) findViewById(R.id.FavorImageView);
+        addPhotoText = (TextView) findViewById(R.id.addPhotoText);
+
+
+        // listeners
+        favorImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                pickFavorPicture();
+
+            }
+        });
+
+
+        publishFavorBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                String favorTitle, favorDescription;
+
+                favorTitle = favorTitleEditText.getText().toString().trim();
+                favorDescription = favorDescriptionEditText.getText().toString().trim();
+
+                if (!TextUtils.isEmpty(favorTitle) && !TextUtils.isEmpty(favorDescription)) {
+                    if(imageHoldUri != null) {
+
+                        mProgress.setTitle("Saving Favor");
+                        mProgress.setMessage("Please wait...");
+                        mProgress.show();
+
+                        StorageReference mChildStorage = mStorageRef.child("Favors").child(imageHoldUri.getLastPathSegment());
+                        String profilePicUrl = imageHoldUri.getLastPathSegment();
+
+                        mChildStorage.putFile(imageHoldUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+
+                                final Uri imageUrl = taskSnapshot.getDownloadUrl();
+
+                                mFavorsDatabase.child("favor_title").setValue(favorTitle);
+                                mFavorsDatabase.child("description").setValue(favorDescription);
+                                mFavorsDatabase.child("user_id").setValue(mAuth.getCurrentUser().getUid());
+                                mFavorsDatabase.child("img_url").setValue(imageUrl.toString());
+                                mFavorsDatabase.child("points").setValue(R.integer.init_points);
+
+                                mProgress.dismiss();
+
+                                finish();
+
+                                Intent moveToHome = new Intent(UserPostSendActivity.this, FavorHome.class);
+                                moveToHome.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                startActivity(moveToHome);
+
+                            }
+                        });
+
+                    } else {
+                        Toast.makeText(UserPostSendActivity.this, "Please add a profile picture", Toast.LENGTH_LONG).show();
+                    }
+                } else {
+
+                    Toast.makeText(UserPostSendActivity.this, "Please enter a display name and about", Toast.LENGTH_LONG).show();
+
+                }
+
+
+            }
+        });
 
         // setup progress dialog
-
         mProgress = new ProgressDialog(this);
 
         // setup firebase auth
@@ -103,7 +174,7 @@ public class UserProfileActivity extends AppCompatActivity {
                 if(user != null){
 
                     finish();
-                    Intent moveToHome  = new Intent(UserProfileActivity.this, FavorHome.class);
+                    Intent moveToHome  = new Intent(UserPostSendActivity.this, FavorHome.class);
                     moveToHome.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(moveToHome);
 
@@ -114,90 +185,48 @@ public class UserProfileActivity extends AppCompatActivity {
 
         // setup firebase database
         mUserDatabase = FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getCurrentUser().getUid());
+        mFavorsDatabase = FirebaseDatabase.getInstance().getReference().child("favors");
         mStorageRef = FirebaseStorage.getInstance().getReference();
 
-        // add component listeners
-        saveProfileBtn.setOnClickListener(new View.OnClickListener() {
+        mUserDatabase.addValueEventListener(new ValueEventListener() {
             @Override
-            public void onClick(View v) {
+            public void onDataChange(DataSnapshot dataSnapshot) {
 
-                String displayName, userAbout;
-
-                displayName = displayNameEditText.getText().toString().trim();
-                userAbout = aboutUserEditText.getText().toString().trim();
-
-                if (!TextUtils.isEmpty(displayName) && !TextUtils.isEmpty(userAbout)) {
-                    if(imageHoldUri != null) {
-
-                        mProgress.setTitle("Saving  Profile");
-                        mProgress.setMessage("Please wait...");
-                        mProgress.show();
-
-                        StorageReference mChildStorage = mStorageRef.child("User_Profile").child(imageHoldUri.getLastPathSegment());
-                        String profilePicUrl = imageHoldUri.getLastPathSegment();
-
-                        mChildStorage.putFile(imageHoldUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                            @Override
-                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-
-                                final Uri imageUrl = taskSnapshot.getDownloadUrl();
-
-                                mUserDatabase.child("display_name").setValue(displayName);
-                                mUserDatabase.child("description").setValue(userAbout);
-                                mUserDatabase.child("user_id").setValue(mAuth.getCurrentUser().getUid());
-                                mUserDatabase.child("img_url").setValue(imageUrl.toString());
-                                mUserDatabase.child("points").setValue(R.integer.init_points);
-
-                                mProgress.dismiss();
-
-                                finish();
-
-                                Intent moveToHome = new Intent(UserProfileActivity.this, FavorHome.class);
-                                moveToHome.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                startActivity(moveToHome);
-
-                            }
-                        });
-
-                    } else {
-                        Toast.makeText(UserProfileActivity.this, "Please add a profile picture", Toast.LENGTH_LONG).show();
-                    }
+                if(! dataSnapshot.child("points").exists()) {
+                    mUserDatabase.child("points").setValue(R.integer.init_points);
                 } else {
 
-                    Toast.makeText(UserProfileActivity.this, "Please enter a display name and about", Toast.LENGTH_LONG).show();
+                    mFavorPoints = String.valueOf(dataSnapshot.child("points").getValue());
+                    favorPointsTextView.setText(mFavorPoints);
+
 
                 }
-
-
-
             }
-        });
-
-
-
-        // user profile image listener
-
-        profileImage.setOnClickListener(new View.OnClickListener(){
 
             @Override
-            public void onClick(View v) {
-
-                // logic to pick image
-                pickProfilePicture();
+            public void onCancelled(DatabaseError databaseError) {
 
             }
         });
+
+        // set favor points
+
+
+
 
 
     }
 
-    private void pickProfilePicture() {
+
+
+
+    private void pickFavorPicture() {
 
         // display choose photo dialog
         final CharSequence[] items = {getResources().getString(R.string.take_photo),
-                                      getResources().getString(R.string.from_library),
-                                      getResources().getString(R.string.cancel)};
-        AlertDialog.Builder builder = new AlertDialog.Builder(UserProfileActivity.this);
+                getResources().getString(R.string.from_library),
+                getResources().getString(R.string.cancel)};
+        AlertDialog.Builder builder = new AlertDialog.Builder(UserPostSendActivity.this);
         builder.setTitle(getResources().getString(R.string.add_profile_picture));
 
         // set items and listeners
@@ -248,14 +277,14 @@ public class UserProfileActivity extends AppCompatActivity {
         Log.d("gola", "entered here");
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
-        if(ContextCompat.checkSelfPermission(UserProfileActivity.this, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(UserProfileActivity.this,
+        if(ContextCompat.checkSelfPermission(UserPostSendActivity.this, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(UserPostSendActivity.this,
                     new String[]{android.Manifest.permission.CAMERA},
                     PERMISSION_REQUEST_CAMERA);
         } else {
 
-            if(ContextCompat.checkSelfPermission(UserProfileActivity.this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(UserProfileActivity.this,
+            if(ContextCompat.checkSelfPermission(UserPostSendActivity.this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(UserPostSendActivity.this,
                         new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE},
                         PERMISSION_REQUEST_EXTERNAL_WRITE);
             } else {
@@ -267,7 +296,7 @@ public class UserProfileActivity extends AppCompatActivity {
                     try {
                         photoFile = createImageFile();
                     } catch (IOException ex) {
-                        Toast.makeText(UserProfileActivity.this, "Could not save photo...", Toast.LENGTH_LONG).show();
+                        Toast.makeText(UserPostSendActivity.this, "Could not save photo...", Toast.LENGTH_LONG).show();
                     }
 
                     if (photoFile != null) {
@@ -290,7 +319,7 @@ public class UserProfileActivity extends AppCompatActivity {
     private File createImageFile() throws IOException {
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
+        String imageFileName = "Favor_JPEG_" + timeStamp + "_";
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         File image = File.createTempFile(
                 imageFileName,  /* prefix */
@@ -332,7 +361,9 @@ public class UserProfileActivity extends AppCompatActivity {
             if(resultCode == RESULT_OK) {
                 imageHoldUri = result.getUri();
 
-                profileImage.setImageURI(imageHoldUri);
+                favorImage.setImageURI(imageHoldUri);
+                addPhotoText.setVisibility(View.INVISIBLE);
+
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 Exception error = result.getError();
             }
@@ -340,4 +371,5 @@ public class UserProfileActivity extends AppCompatActivity {
         }
 
     }
+
 }

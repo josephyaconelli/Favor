@@ -16,15 +16,14 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
         <provider
-            android:authorities="com.josephyaconelli.favor.profileuser.fileprovider"
             android:name="android.support.v4.content.FileProvider"
+            android:authorities="com.josephyaconelli.favor.profileuser.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths"></meta-data>
+                android:resource="@xml/file_paths" />
         </provider>
 
         <activity
@@ -38,13 +37,18 @@
             </intent-filter>
         </activity>
         <activity android:name=".RegisterUserActivity" />
-        <activity android:name="com.theartofdev.edmodo.cropper.CropImageActivity" android:theme="@style/Base.Theme.AppCompat" />
-        <activity android:name=".profileuser.UserProfileActivity"
+        <activity
+            android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
+            android:theme="@style/Base.Theme.AppCompat" />
+        <activity
+            android:name=".profileuser.UserProfileActivity"
             android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".favorhome.FavorHome"
             android:label="@string/title_activity_favor_home"
-            android:theme="@style/AppTheme"></activity>
+            android:theme="@style/AppTheme" />
+        <activity android:name=".postinfo.UserPostSendActivity"
+            android:windowSoftInputMode="adjustPan"></activity>
     </application>
 
 </manifest>

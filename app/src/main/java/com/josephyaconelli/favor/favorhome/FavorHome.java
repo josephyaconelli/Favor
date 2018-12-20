@@ -12,13 +12,13 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,6 +31,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.josephyaconelli.favor.MainActivity;
 import com.josephyaconelli.favor.R;
+import com.josephyaconelli.favor.postinfo.UserPostSendActivity;
 import com.josephyaconelli.favor.profileuser.UserProfileActivity;
 
 public class FavorHome extends AppCompatActivity {
@@ -57,12 +58,15 @@ public class FavorHome extends AppCompatActivity {
      */
     private ViewPager mViewPager;
 
+
+    ImageView addPost;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_favor_home);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.favor_home_toolbar);
         setSupportActionBar(toolbar);
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
@@ -117,7 +121,7 @@ public class FavorHome extends AppCompatActivity {
 
 
                 } else {
-                    Toast.makeText(FavorHome.this, "user null", Toast.LENGTH_LONG).show();
+                    Toast.makeText(FavorHome.this, "You've been logged out", Toast.LENGTH_LONG).show();
                     finish();
 
                     startActivity(new Intent(FavorHome.this, MainActivity.class));
@@ -127,6 +131,17 @@ public class FavorHome extends AppCompatActivity {
         };
 
         mAuth.addAuthStateListener(mAuthListener);
+
+        addPost = (ImageView) findViewById(R.id.addPostImageView);
+
+        addPost.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                startActivity(new Intent(FavorHome.this, UserPostSendActivity.class));
+
+            }
+        });
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -168,8 +183,12 @@ public class FavorHome extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch (id){
+
+            case R.id.action_settings:
+                return true;
+            case R.id.signOut: mAuth.signOut();
+                return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -222,15 +241,43 @@ public class FavorHome extends AppCompatActivity {
 
         @Override
         public Fragment getItem(int position) {
+
+            switch (position) {
+
+                case 0:
+                    return PopularPosts.newInstance();
+
+                case 1:
+                    return FavorPosts.newInstance();
+
+                case 2:
+                    return FollowingUsers.newInstance();
+
+            }
+
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
-            return PlaceholderFragment.newInstance(position + 1);
+            return FavorPosts.newInstance();
         }
 
         @Override
         public int getCount() {
             // Show 3 total pages.
             return 3;
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            switch (position) {
+                case 0:
+                    return "Explore";
+                case 1:
+                    return "Posts";
+                case 2:
+                    return "Following";
+                default:
+                    return "Favor";
+            }
         }
     }
 }

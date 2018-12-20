@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.josephyaconelli.favor.postinfo.UserPostSendActivity"
+    android:scrollbars="vertical">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="15dp"
+        android:clipToPadding="false"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="15dp"
+            android:clipToPadding="false"
+            android:clipChildren="false"
+            >
+
+
+
+            <android.support.constraint.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:elevation="7dp"
+                android:clipToPadding="false"
+                android:clipChildren="false"
+                >
+
+                <ImageView
+                    android:id="@+id/FavorImageView"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    app:layout_constraintDimensionRatio="1:1"
+                    android:src="@drawable/ic_photo_black_24dp"
+                    android:scaleType="centerCrop"
+                    />
+
+            </android.support.constraint.ConstraintLayout>
+
+            <TextView
+                android:id="@+id/addPhotoText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:gravity="center_vertical"
+                android:text="Add Photo"
+                android:elevation="7dp"
+                android:textStyle="bold"
+                android:textColor="#ffffff"
+                android:paddingBottom="100dp"
+                android:textSize="40sp"
+                android:textAlignment="center" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="25dp"
+                android:elevation="10dp"
+                android:clipToPadding="false"
+                android:background="@drawable/point_background">
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:gravity="center_vertical"
+                    android:layout_marginRight="-5dp">
+
+                    <ImageView
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/currency"/>
+
+                </LinearLayout>
+
+                <TextView
+                    android:text="---"
+                    android:id="@+id/favorPointsView"
+                    android:textStyle="bold"
+                    android:textColor="#fafafa"
+                    android:textSize="30sp"
+                    android:gravity="center_vertical"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+
+
+        </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical">
+
+            <EditText
+                android:id="@+id/favorTitleEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="25dp"
+                android:layout_marginRight="25dp"
+                android:background="@drawable/border_edittext"
+                android:hint="Favor title"
+                android:textColorHint="#555555" />
+
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <EditText
+        android:id="@+id/aboutFavorEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="25dp"
+        android:layout_marginRight="25dp"
+        android:gravity="top|left"
+        android:hint="About the favor..."
+        android:inputType="textMultiLine"
+        android:lines="5"
+        android:maxLines="5"
+        android:minLines="3"
+        android:padding="15dp"
+        android:scrollbars="vertical"
+        android:textColorHint="#555555" />
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="106dp"
+        android:layout_gravity="bottom">
+
+        <TextView
+            android:id="@+id/publishFavor"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_marginLeft="25dp"
+            android:layout_marginRight="25dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/background_login"
+            android:text="Publish"
+            android:textAlignment="center"
+            android:textColor="#fafafa"
+            android:elevation="5dp"
+            android:textSize="24sp" />
+
+    </LinearLayout>
+
+
+
+</LinearLayout>

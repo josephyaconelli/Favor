@@ -7,4 +7,7 @@
     <string name="from_library">Choose from Library</string>
     <string name="cancel">Cancel</string>
     <string name="add_profile_picture">Add Profile Picture</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
