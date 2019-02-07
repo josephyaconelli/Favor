@@ -126,21 +126,26 @@ public class UserPostSendActivity extends AppCompatActivity {
                             @Override
                             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
 
-                                final Uri imageUrl = taskSnapshot.getDownloadUrl();
+                                taskSnapshot.getMetadata().getReference().getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                    @Override
+                                    public void onSuccess(Uri uri) {
+                                        mFavorsDatabase.child("title").setValue(favorTitle);
+                                        mFavorsDatabase.child("description").setValue(favorDescription);
+                                        mFavorsDatabase.child("user_id").setValue(mAuth.getCurrentUser().getUid());
+                                        mFavorsDatabase.child("img_url").setValue(uri.toString());
+                                        mFavorsDatabase.child("points").setValue(R.integer.init_points);
 
-                                mFavorsDatabase.child("favor_title").setValue(favorTitle);
-                                mFavorsDatabase.child("description").setValue(favorDescription);
-                                mFavorsDatabase.child("user_id").setValue(mAuth.getCurrentUser().getUid());
-                                mFavorsDatabase.child("img_url").setValue(imageUrl.toString());
-                                mFavorsDatabase.child("points").setValue(R.integer.init_points);
+                                        mProgress.dismiss();
 
-                                mProgress.dismiss();
+                                        finish();
 
-                                finish();
+                                        Intent moveToHome = new Intent(UserPostSendActivity.this, FavorHome.class);
+                                        moveToHome.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                        startActivity(moveToHome);
+                                    }
+                                });
 
-                                Intent moveToHome = new Intent(UserPostSendActivity.this, FavorHome.class);
-                                moveToHome.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                startActivity(moveToHome);
+
 
                             }
                         });

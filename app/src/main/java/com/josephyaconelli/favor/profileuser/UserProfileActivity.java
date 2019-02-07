@@ -32,7 +32,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.josephyaconelli.favor.Manifest;
 import com.josephyaconelli.favor.R;
 import com.josephyaconelli.favor.favorhome.FavorHome;
 import com.theartofdev.edmodo.cropper.CropImage;
@@ -140,21 +139,28 @@ public class UserProfileActivity extends AppCompatActivity {
                             @Override
                             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
 
-                                final Uri imageUrl = taskSnapshot.getDownloadUrl();
+                                taskSnapshot.getMetadata().getReference().getDownloadUrl().addOnSuccessListener(
+                                        new OnSuccessListener<Uri>() {
+                                            @Override
+                                            public void onSuccess(Uri uri) {
 
-                                mUserDatabase.child("display_name").setValue(displayName);
-                                mUserDatabase.child("description").setValue(userAbout);
-                                mUserDatabase.child("user_id").setValue(mAuth.getCurrentUser().getUid());
-                                mUserDatabase.child("img_url").setValue(imageUrl.toString());
-                                mUserDatabase.child("points").setValue(R.integer.init_points);
+                                                mUserDatabase.child("display_name").setValue(displayName);
+                                                mUserDatabase.child("description").setValue(userAbout);
+                                                mUserDatabase.child("user_id").setValue(mAuth.getCurrentUser().getUid());
+                                                mUserDatabase.child("img_url").setValue(uri.toString());
+                                                mUserDatabase.child("points").setValue(R.integer.init_points);
 
-                                mProgress.dismiss();
+                                                mProgress.dismiss();
 
-                                finish();
+                                                finish();
 
-                                Intent moveToHome = new Intent(UserProfileActivity.this, FavorHome.class);
-                                moveToHome.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                startActivity(moveToHome);
+                                                Intent moveToHome = new Intent(UserProfileActivity.this, FavorHome.class);
+                                                moveToHome.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                                startActivity(moveToHome);
+
+                                            }
+                                        }
+                                );
 
                             }
                         });
