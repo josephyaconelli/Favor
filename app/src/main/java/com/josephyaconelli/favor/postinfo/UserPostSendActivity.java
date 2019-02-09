@@ -5,9 +5,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
@@ -19,6 +21,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,6 +32,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -40,6 +44,8 @@ import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.Time;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -52,7 +58,7 @@ public class UserPostSendActivity extends AppCompatActivity {
     private static final int PERMISSION_REQUEST_EXTERNAL_WRITE = 5;
 
     // favor points
-    String mFavorPoints = "0";
+    int mFavorPoints = 0;
 
     // profile image uri and File
     Uri mCurrentPhotoPath;
@@ -66,6 +72,7 @@ public class UserPostSendActivity extends AppCompatActivity {
     TextView favorPointsTextView, publishFavorBtn, addPhotoText;
     EditText favorTitleEditText, favorDescriptionEditText;
     ImageView favorImage;
+    NumberPicker favorPointPicker;
 
 
     // firebase auth
@@ -90,6 +97,10 @@ public class UserPostSendActivity extends AppCompatActivity {
         publishFavorBtn = (TextView) findViewById(R.id.publishFavor);
         favorImage = (ImageView) findViewById(R.id.FavorImageView);
         addPhotoText = (TextView) findViewById(R.id.addPhotoText);
+        favorPointPicker = (NumberPicker) findViewById(R.id.favorPointPicker);
+        favorPointPicker.setMinValue(1);
+        favorPointPicker.setMaxValue(1);
+
 
 
         // listeners
@@ -131,9 +142,11 @@ public class UserPostSendActivity extends AppCompatActivity {
                                     public void onSuccess(Uri uri) {
                                         mFavorsDatabase.child("title").setValue(favorTitle);
                                         mFavorsDatabase.child("description").setValue(favorDescription);
-                                        mFavorsDatabase.child("user_id").setValue(mAuth.getCurrentUser().getUid());
-                                        mFavorsDatabase.child("img_url").setValue(uri.toString());
-                                        mFavorsDatabase.child("points").setValue(R.integer.init_points);
+                                        mFavorsDatabase.child("userid").setValue(mAuth.getCurrentUser().getUid());
+                                        mFavorsDatabase.child("imgurl").setValue(uri.toString());
+                                        mFavorsDatabase.child("points").setValue(favorPointPicker.getValue());
+                                        mFavorsDatabase.child("timestamp").setValue(ServerValue.TIMESTAMP);
+
 
                                         mProgress.dismiss();
 
@@ -190,22 +203,27 @@ public class UserPostSendActivity extends AppCompatActivity {
 
         // setup firebase database
         mUserDatabase = FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getCurrentUser().getUid());
-        mFavorsDatabase = FirebaseDatabase.getInstance().getReference().child("favors");
+        mFavorsDatabase = FirebaseDatabase.getInstance().getReference().child("favors").child(java.util.UUID.randomUUID().toString());
         mStorageRef = FirebaseStorage.getInstance().getReference();
 
         mUserDatabase.addValueEventListener(new ValueEventListener() {
+            @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
                 if(! dataSnapshot.child("points").exists()) {
-                    mUserDatabase.child("points").setValue(R.integer.init_points);
+                    mUserDatabase.child("points").setValue(getResources().getInteger(R.integer.init_points));
+                    favorPointPicker.setMaxValue(getResources().getInteger(R.integer.init_points));
                 } else {
-
-                    mFavorPoints = String.valueOf(dataSnapshot.child("points").getValue());
-                    favorPointsTextView.setText(mFavorPoints);
-
-
+                    try {
+                        mFavorPoints = Math.toIntExact((Long) dataSnapshot.child("points").getValue());
+                    } catch (NullPointerException e) {
+                        mUserDatabase.child("points").setValue(getResources().getInteger(R.integer.init_points));
+                        mFavorPoints = Math.toIntExact((Long) dataSnapshot.child("points").getValue());
+                    }
+                    favorPointPicker.setMaxValue(mFavorPoints);
                 }
+
             }
 
             @Override

@@ -59,6 +59,12 @@ public class FavorHome extends AppCompatActivity {
     private ViewPager mViewPager;
 
 
+    // CONST INTS FOR PAGE REFERENCES
+    final int EXPLORE = 0;
+    final int POSTS = 1;
+    final int PROFILE = 2;
+
+
     ImageView addPost;
 
     @Override
@@ -75,6 +81,8 @@ public class FavorHome extends AppCompatActivity {
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
+
+        mViewPager.setCurrentItem(1);
 
         // set up database
         mDatabaseRef = FirebaseDatabase.getInstance().getReference().child("users");
@@ -274,7 +282,7 @@ public class FavorHome extends AppCompatActivity {
                 case 1:
                     return "Posts";
                 case 2:
-                    return "Following";
+                    return "Profile";
                 default:
                     return "Favor";
             }

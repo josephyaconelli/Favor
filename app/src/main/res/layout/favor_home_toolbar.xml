@@ -4,7 +4,8 @@
     android:id="@+id/favor_home_toolbar"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/colorPrimary">
+    android:elevation="5dp"
+    android:background="@color/cardview_light_background">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -17,22 +18,22 @@
             android:layout_width="wrap_content"
             android:layout_height="35dp"
             app:srcCompat="@drawable/favor"
-            android:elevation="10dp"
+            android:elevation="20dp"
             android:layout_centerInParent="true"
             />
 
         <ImageView
             android:id="@+id/addPostImageView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:src="@drawable/ic_photo_camera_black_24dp"
             android:layout_centerVertical="true"
             />
 
         <ImageView
             android:id="@+id/imageView4"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="35dp"
+            android:layout_height="40dp"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             app:srcCompat="@drawable/ic_send_black_24dp" />

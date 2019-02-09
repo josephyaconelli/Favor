@@ -6,6 +6,7 @@ import android.provider.ContactsContract;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,10 +20,13 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.josephyaconelli.favor.R;
 import com.josephyaconelli.favor.model.Post;
 import com.squareup.picasso.Picasso;
+
+import java.io.Console;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -69,21 +73,31 @@ public class FavorPosts extends Fragment {
         firebaseListRecyclerView.setHasFixedSize(true);
         firebaseListRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
+        Query postsQuery = mFavorPostDatabase.orderByChild("timestamp");
+
         FirebaseRecyclerAdapter firebaseRecyclerAdapter = new FirebaseRecyclerAdapter<Post, PostViewHolder>(
 
                 Post.class,
                 R.layout.post_card,
                 PostViewHolder.class,
-                mFavorPostDatabase
+                postsQuery
 
         ) {
-
-
             @Override
             protected void populateViewHolder(final PostViewHolder viewHolder, final Post model, int position) {
 
-                DatabaseReference mUserInfo = FirebaseDatabase.getInstance().getReference().child("users").child(model.getUserId());
+                DatabaseReference mUserInfo = FirebaseDatabase.getInstance().getReference().child("users").child(model.getUserid());
                 final String post_key_id = getRef(position).getKey();
+
+                viewHolder.favorTitle.setText(model.getTitle());
+                viewHolder.description.setText(model.getDescription());
+                viewHolder.favorPointsView.setText(model.getPoints().toString());
+
+                String message = "IMAGE URL : " + model.getImgurl();
+                Log.v("POP", message);
+
+                Picasso.get().load(model.getImgurl()).into(viewHolder.postImage);
+
 
                 mUserInfo.addValueEventListener(new ValueEventListener() {
                     @Override
@@ -129,11 +143,12 @@ public class FavorPosts extends Fragment {
                 });
 
 
-                Picasso.get().load(model.getImageUrl()).into(viewHolder.postImage);
+
 
             }
 
         };
+
 
 
         firebaseListRecyclerView.setAdapter(firebaseRecyclerAdapter);
@@ -146,7 +161,7 @@ public class FavorPosts extends Fragment {
     public static class PostViewHolder extends RecyclerView.ViewHolder  {
 
         CircleImageView profilePic;
-        TextView favorTitle, description;
+        TextView favorTitle, description, favorPointsView;
         ImageView postImage, replyBtn, likeBtn, bookmarkBtn;
         DatabaseReference mDatabaseLikes;
         FirebaseAuth mAuth;
@@ -160,12 +175,13 @@ public class FavorPosts extends Fragment {
 
             profilePic = (CircleImageView) itemView.findViewById(R.id.cardProfileImage);
             favorTitle = (TextView) itemView.findViewById(R.id.favorTitle);
-            // TODO: add drescription to car view description = (TextView) itemView.findViewById(R.id.description)
+            description = (TextView) itemView.findViewById(R.id.description);
             postImage = (ImageView) itemView.findViewById(R.id.cardPostImage);
             replyBtn = (ImageView) itemView.findViewById(R.id.replyImageView);
             likeBtn = (ImageView) itemView.findViewById(R.id.likeImageView);
             bookmarkBtn = (ImageView) itemView.findViewById(R.id.bookmarkImageView);
             likesText = (TextView) itemView.findViewById(R.id.likesTextView);
+            favorPointsView = (TextView) itemView.findViewById(R.id.favorPointsView);
 
         }
 
