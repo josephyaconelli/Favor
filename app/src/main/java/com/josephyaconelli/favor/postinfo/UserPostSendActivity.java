@@ -4,6 +4,8 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -39,10 +41,12 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.josephyaconelli.favor.R;
 import com.josephyaconelli.favor.favorhome.FavorHome;
+import com.josephyaconelli.favor.utils.ImageUtils;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -126,9 +130,31 @@ public class UserPostSendActivity extends AppCompatActivity {
                 if (!TextUtils.isEmpty(favorTitle) && !TextUtils.isEmpty(favorDescription)) {
                     if(imageHoldUri != null) {
 
+                        Log.d("compression", imageHoldUri.toString());
+
                         mProgress.setTitle("Saving Favor");
                         mProgress.setMessage("Please wait...");
                         mProgress.show();
+
+                        try {
+
+                            File image = createImageFile("Favor_scaled_JPEG_");
+                            Bitmap original = BitmapFactory.decodeFile(imageHoldUri.getPath());
+                            Bitmap resized = Bitmap.createScaledBitmap(original, getResources().getInteger(R.integer.favor_image_size),
+                                                                                 getResources().getInteger(R.integer.favor_image_size),
+                                                                                true);
+                            FileOutputStream out = new FileOutputStream(image);
+                            resized.compress(Bitmap.CompressFormat.JPEG, 100, out);
+                            out.close();
+                            imageHoldUri = Uri.fromFile(image);
+                            Log.d("compression", imageHoldUri.toString());
+                            Log.d("compressImage", "CREATED RESIZED IMAGE");
+
+                        } catch(Exception e){
+
+                            Log.d("compressImage", "couldn't create image");
+                            e.printStackTrace();
+                        }
 
                         StorageReference mChildStorage = mStorageRef.child("Favors").child(imageHoldUri.getLastPathSegment());
                         String profilePicUrl = imageHoldUri.getLastPathSegment();
@@ -136,6 +162,7 @@ public class UserPostSendActivity extends AppCompatActivity {
                         mChildStorage.putFile(imageHoldUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                             @Override
                             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                Log.d("compressBitmap", "upload complete");
 
                                 taskSnapshot.getMetadata().getReference().getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                                     @Override
@@ -146,7 +173,6 @@ public class UserPostSendActivity extends AppCompatActivity {
                                         mFavorsDatabase.child("imgurl").setValue(uri.toString());
                                         mFavorsDatabase.child("points").setValue(favorPointPicker.getValue());
                                         mFavorsDatabase.child("timestamp").setValue(ServerValue.TIMESTAMP);
-
 
                                         mProgress.dismiss();
 
@@ -317,7 +343,7 @@ public class UserPostSendActivity extends AppCompatActivity {
                     File photoFile = null;
 
                     try {
-                        photoFile = createImageFile();
+                        photoFile = createImageFile("Favor_JPEG_");
                     } catch (IOException ex) {
                         Toast.makeText(UserPostSendActivity.this, "Could not save photo...", Toast.LENGTH_LONG).show();
                     }
@@ -339,10 +365,10 @@ public class UserPostSendActivity extends AppCompatActivity {
 
     }
 
-    private File createImageFile() throws IOException {
+    private File createImageFile(String filename) throws IOException {
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "Favor_JPEG_" + timeStamp + "_";
+        String imageFileName = filename + timeStamp + "_";
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         File image = File.createTempFile(
                 imageFileName,  /* prefix */
@@ -386,6 +412,7 @@ public class UserPostSendActivity extends AppCompatActivity {
 
                 favorImage.setImageURI(imageHoldUri);
                 addPhotoText.setVisibility(View.INVISIBLE);
+
 
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 Exception error = result.getError();

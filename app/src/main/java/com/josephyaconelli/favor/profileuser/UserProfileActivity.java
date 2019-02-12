@@ -4,6 +4,8 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -38,6 +40,7 @@ import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -131,6 +134,28 @@ public class UserProfileActivity extends AppCompatActivity {
                         mProgress.setTitle("Saving  Profile");
                         mProgress.setMessage("Please wait...");
                         mProgress.show();
+
+                        try {
+
+                            File image = createImageFile("user_scaled_JPEG_");
+                            Bitmap original = BitmapFactory.decodeFile(imageHoldUri.getPath());
+                            Bitmap resized = Bitmap.createScaledBitmap(original, getResources().getInteger(R.integer.profile_image_size),
+                                    getResources().getInteger(R.integer.profile_image_size),
+                                    true);
+                            FileOutputStream out = new FileOutputStream(image);
+                            resized.compress(Bitmap.CompressFormat.JPEG, 100, out);
+                            out.close();
+                            imageHoldUri = Uri.fromFile(image);
+                            Log.d("compression", imageHoldUri.toString());
+                            Log.d("compressImage", "CREATED RESIZED IMAGE");
+
+                        } catch(Exception e){
+
+                            Log.d("compressImage", "couldn't create image");
+                            e.printStackTrace();
+                        }
+
+
 
                         StorageReference mChildStorage = mStorageRef.child("User_Profile").child(imageHoldUri.getLastPathSegment());
                         String profilePicUrl = imageHoldUri.getLastPathSegment();
@@ -271,7 +296,7 @@ public class UserProfileActivity extends AppCompatActivity {
                     File photoFile = null;
 
                     try {
-                        photoFile = createImageFile();
+                        photoFile = createImageFile("user_JPEG_");
                     } catch (IOException ex) {
                         Toast.makeText(UserProfileActivity.this, "Could not save photo...", Toast.LENGTH_LONG).show();
                     }
@@ -293,10 +318,10 @@ public class UserProfileActivity extends AppCompatActivity {
 
     }
 
-    private File createImageFile() throws IOException {
+    private File createImageFile(String fileName) throws IOException {
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
+        String imageFileName = fileName + timeStamp + "_";
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         File image = File.createTempFile(
                 imageFileName,  /* prefix */
